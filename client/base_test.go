@@ -30,9 +30,9 @@ func TestGetServerInfo(t *testing.T) {
 						"kilgore.trout@example.com",
 					},
 				},
-				Auth: map[string]string{
-					"groups-prefix":       "Dom2_Dns3l_",
-					"groups-domain-delim": ".",
+				Auth: &api.ServerInfoAuth{
+					GroupsPrefix:      "Dom2_Dns3l_",
+					GroupsDomainDelim: ".",
 				},
 				Renewal: &api.ServerInfoRenewal{
 					LastRun:    &time,
@@ -43,7 +43,7 @@ func TestGetServerInfo(t *testing.T) {
 		}))
 	defer srv.Close()
 	srvurl, _ := url.Parse(srv.URL)
-	client := NewUnauthed(srvurl, srv.Client())
+	client := NewUnauthenticated(srvurl, srv.Client())
 	srvinfo, err := client.GetServerInfo(t.Context())
 	assert.NoError(t, err)
 	assert.NotNil(t, srvinfo)

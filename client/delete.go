@@ -14,18 +14,13 @@ func (c *clientRawImpl) DeleteCertByCA(ctx context.Context, caID, crtName string
 	if err != nil {
 		return err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "DELETE", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodDelete, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.doSuccessful(rq)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.doSuccessfulNoRespBody(rq)
 }
 
 func (c *clientImpl) DeleteCertAllCAs(ctx context.Context, crtName string) error {
@@ -37,16 +32,11 @@ func (c *clientRawImpl) DeleteCertAllCAs(ctx context.Context, crtName string) er
 	if err != nil {
 		return err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "DELETE", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodDelete, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return err
 	}
 
-	_, err = c.doSuccessful(rq)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.doSuccessfulNoRespBody(rq)
 }

@@ -21,12 +21,12 @@ func (c *clientImpl) GetStatus(ctx context.Context) (*api.ServerStatus, error) {
 	return result, nil
 }
 
-func (c *clientRawImpl) GetStatus(ctx context.Context) (io.Reader, error) {
+func (c *clientRawImpl) GetStatus(ctx context.Context) (io.ReadCloser, error) {
 	url, err := c.fromBase("/status")
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

@@ -6,7 +6,7 @@ import "time"
 type ServerInfo struct {
 	Version *ServerInfoVersion `json:"version"`
 	Contact *ServerInfoContact `json:"contact"`
-	Auth    any                `json:"auth"`
+	Auth    *ServerInfoAuth    `json:"auth"`
 	Renewal *ServerInfoRenewal `json:"renewal"`
 }
 
@@ -18,6 +18,11 @@ type ServerInfoVersion struct {
 type ServerInfoContact struct {
 	URL   string   `json:"url"`
 	EMail []string `json:"email"`
+}
+
+type ServerInfoAuth struct {
+	GroupsPrefix      string `json:"groups-prefix"`
+	GroupsDomainDelim string `json:"groups-domain-delim"`
 }
 
 type ServerInfoRenewal struct {

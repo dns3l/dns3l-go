@@ -21,12 +21,12 @@ func (c *clientImpl) GetDNSHandlers(ctx context.Context) ([]*api.DNSHandlerInfo,
 	return result, nil
 }
 
-func (c *clientRawImpl) GetDNSHandlers(ctx context.Context) (io.Reader, error) {
+func (c *clientRawImpl) GetDNSHandlers(ctx context.Context) (io.ReadCloser, error) {
 	url, err := c.fromBase("/dns")
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err
@@ -52,12 +52,12 @@ func (c *clientImpl) GetDNSRootzones(ctx context.Context) ([]*api.DNSRootzoneInf
 	return result, nil
 }
 
-func (c *clientRawImpl) GetDNSRootzones(ctx context.Context) (io.Reader, error) {
+func (c *clientRawImpl) GetDNSRootzones(ctx context.Context) (io.ReadCloser, error) {
 	url, err := c.fromBase("/dns/rtzn")
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

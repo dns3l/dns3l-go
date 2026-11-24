@@ -182,4 +182,5 @@ func TestClientRawReturnsUnparsedResponse(t *testing.T) {
 	got, err := io.ReadAll(reader)
 	require.NoError(t, err)
 	assert.Equal(t, response, string(got))
+	require.NoError(t, reader.Close())
 }

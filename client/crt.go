@@ -21,12 +21,12 @@ func (c *clientImpl) GetCert(ctx context.Context, caID string, certName string) 
 	return result, nil
 }
 
-func (c *clientRawImpl) GetCert(ctx context.Context, caID string, certName string) (io.Reader, error) {
+func (c *clientRawImpl) GetCert(ctx context.Context, caID string, certName string) (io.ReadCloser, error) {
 	url, err := c.fromBase("/ca/%s/crt/%s", caID, certName)
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err
@@ -52,12 +52,12 @@ func (c *clientImpl) GetCertAllCAs(ctx context.Context, certName string) ([]*api
 	return result, nil
 }
 
-func (c *clientRawImpl) GetCertAllCAs(ctx context.Context, certName string) (io.Reader, error) {
+func (c *clientRawImpl) GetCertAllCAs(ctx context.Context, certName string) (io.ReadCloser, error) {
 	url, err := c.fromBase("/crt/%s", certName)
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

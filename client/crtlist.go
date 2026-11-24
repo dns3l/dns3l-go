@@ -24,7 +24,7 @@ func (c *clientImpl) GetCertsByCA(ctx context.Context, caID string, opts *CertQu
 }
 
 func (c *clientRawImpl) GetCertsByCA(ctx context.Context, caID string, opts *CertQueryOptions) (
-	io.Reader, *pagination.Info, error) {
+	io.ReadCloser, *pagination.Info, error) {
 	return c.getPaginatedListResource(ctx, opts, "/ca/%s/crt", caID)
 }
 
@@ -34,7 +34,7 @@ func (c *clientImpl) GetCerts(ctx context.Context, opts *CertQueryOptions) (
 }
 
 func (c *clientRawImpl) GetCerts(ctx context.Context, opts *CertQueryOptions) (
-	io.Reader, *pagination.Info, error) {
+	io.ReadCloser, *pagination.Info, error) {
 	return c.getPaginatedListResource(ctx, opts, "/crt")
 }
 
@@ -79,7 +79,7 @@ func getPaginatedListResource[T any](ctx context.Context, c *clientImpl,
 
 func (c clientRawImpl) getPaginatedListResource(ctx context.Context, opts *CertQueryOptions,
 	path string, params ...string) (
-	io.Reader, *pagination.Info, error) {
+	io.ReadCloser, *pagination.Info, error) {
 
 	if opts == nil {
 		opts = &CertQueryOptions{}
@@ -91,7 +91,7 @@ func (c clientRawImpl) getPaginatedListResource(ctx context.Context, opts *CertQ
 	}
 	pagination.AddPagination(url, opts.Limit, opts.Offset)
 	addSearchOpts(url, opts.Search, opts.Suffix)
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	fmt.Println(rq)
 

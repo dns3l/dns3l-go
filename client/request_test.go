@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strconv"
 	"testing"
 
 	"github.com/dns3l/dns3l-go/api"
@@ -53,15 +54,16 @@ func TestAuthenticationAndUserAgentHeaders(t *testing.T) {
 			case "X-DNS3L-API-Key":
 				authenticatedClient = NewByApiKey(baseURL, nil, "key-value")
 			case "":
-				authenticatedClient = NewUnauthed(baseURL, nil)
+				authenticatedClient = NewUnauthenticated(baseURL, nil)
 			default:
 				authenticatedClient = client
 			}
 			if tt.customAgent != "" {
 				authenticatedClient.Raw().SetUserAgent(tt.customAgent)
 			}
-			_, err = authenticatedClient.Raw().GetServerInfo(context.Background())
+			reader, err := authenticatedClient.Raw().GetServerInfo(context.Background())
 			require.NoError(t, err)
+			require.NoError(t, reader.Close())
 		})
 	}
 }
@@ -139,12 +141,13 @@ func TestGetCertsByCAQueryOptions(t *testing.T) {
 		_, _ = w.Write([]byte(`[]`))
 	}))
 
-	got, page, err := client.Raw().GetCertsByCA(context.Background(), "ca1", &CertQueryOptions{
+	reader, page, err := client.Raw().GetCertsByCA(context.Background(), "ca1", &CertQueryOptions{
 		Limit: 4, Offset: 5, Search: "api server", Suffix: "example.com",
 	})
 	require.NoError(t, err)
 	require.NotNil(t, page)
-	require.NotNil(t, got)
+	require.NotNil(t, reader)
+	require.NoError(t, reader.Close())
 }
 
 func TestRawGetCerts(t *testing.T) {
@@ -158,6 +161,7 @@ func TestRawGetCerts(t *testing.T) {
 	require.NoError(t, err)
 	require.NotNil(t, reader)
 	require.NotNil(t, page)
+	require.NoError(t, reader.Close())
 }
 
 func TestHiddenPagingAggregatesCertificatePages(t *testing.T) {
@@ -243,6 +247,33 @@ func TestHTTPAndDecodeErrors(t *testing.T) {
 			_, err := client.Raw().GetServerInfo(context.Background())
 			require.Error(t, err)
 			assert.Contains(t, err.Error(), tt.wantErr)
+		})
+	}
+}
+
+func TestHTTPStatusSentinelErrors(t *testing.T) {
+	tests := []struct {
+		name       string
+		statusCode int
+		wantErr    error
+	}{
+		{name: "bad request", statusCode: http.StatusBadRequest, wantErr: ErrBadRequest},
+		{name: "not found", statusCode: http.StatusNotFound, wantErr: ErrNotFound},
+		{name: "conflict", statusCode: http.StatusConflict, wantErr: ErrConflict},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			const serverMessage = "exact server response text"
+			client, _ := newTestClient(t, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				w.WriteHeader(tt.statusCode)
+				_, _ = w.Write([]byte(`{"code":` + strconv.Itoa(tt.statusCode) + `,"message":"` + serverMessage + `"}`))
+			}))
+
+			_, err := client.Raw().GetServerInfo(context.Background())
+			require.Error(t, err)
+			assert.ErrorIs(t, err, tt.wantErr)
+			assert.Contains(t, err.Error(), serverMessage)
 		})
 	}
 }

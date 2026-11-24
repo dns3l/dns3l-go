@@ -23,17 +23,12 @@ func (c *clientRawImpl) ClaimCertificate(ctx context.Context, caID string, req *
 		return err
 	}
 	reqr := bytes.NewBuffer(reqjson)
-	rq, err := http.NewRequestWithContext(ctx, "POST", url.String(), reqr)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodPost, url.String(), reqr)
 	c.applyDefaultReqHeaders(rq)
 	rq.Header.Add("Content-Type", "application/json")
 	if err != nil {
 		return err
 	}
 
-	_, err = c.doSuccessful(rq)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return c.doSuccessfulNoRespBody(rq)
 }

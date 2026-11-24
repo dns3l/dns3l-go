@@ -21,12 +21,12 @@ func (c *clientImpl) GetCAs(ctx context.Context) ([]*api.CAInfo, error) {
 	return result, nil
 }
 
-func (c *clientRawImpl) GetCAs(ctx context.Context) (io.Reader, error) {
+func (c *clientRawImpl) GetCAs(ctx context.Context) (io.ReadCloser, error) {
 	url, err := c.fromBase("/ca")
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err
@@ -52,12 +52,12 @@ func (c *clientImpl) GetCA(ctx context.Context, caID string) (*api.CAInfo, error
 	return result, nil
 }
 
-func (c *clientRawImpl) GetCA(ctx context.Context, caID string) (io.Reader, error) {
+func (c *clientRawImpl) GetCA(ctx context.Context, caID string) (io.ReadCloser, error) {
 	url, err := c.fromBase("/ca/%s", caID)
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

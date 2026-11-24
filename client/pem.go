@@ -28,12 +28,12 @@ func (c *clientImpl) GetAllResources(ctx context.Context, caID, certName string)
 }
 
 func (c *clientRawImpl) GetAllResources(ctx context.Context, caID, certName string) (
-	io.Reader, error) {
+	io.ReadCloser, error) {
 	url, err := c.fromBase("/ca/%s/crt/%s/pem", caID, certName)
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err
@@ -62,6 +62,8 @@ func (c *clientImpl) getResourceSingleCert(ctx context.Context, caID,
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck // don't check closes
+	defer r.Close()
 	pemBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -96,6 +98,8 @@ func (c *clientImpl) GetResourceKey(ctx context.Context, caID, certName string) 
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck // don't check closes
+	defer r.Close()
 	pemBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -144,6 +148,8 @@ func (c *clientImpl) getResourceChain(ctx context.Context, caID,
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck // don't check closes
+	defer r.Close()
 	pemBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -184,6 +190,8 @@ func (c *clientImpl) GetResourceBytes(ctx context.Context, caID,
 	if err != nil {
 		return nil, err
 	}
+	//nolint:errcheck // don't check closes
+	defer r.Close()
 	pemBytes, err := io.ReadAll(r)
 	if err != nil {
 		return nil, err
@@ -192,12 +200,12 @@ func (c *clientImpl) GetResourceBytes(ctx context.Context, caID,
 }
 
 func (c *clientRawImpl) GetResource(ctx context.Context, caID, certName string, rtype ResourceType) (
-	io.Reader, error) {
+	io.ReadCloser, error) {
 	url, err := c.fromBase("/ca/%s/crt/%s/pem/%s", caID, certName, string(rtype))
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

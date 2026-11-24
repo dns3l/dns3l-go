@@ -29,13 +29,13 @@ type clientRawImpl struct {
 	userAgent   string
 }
 
-// NewUnauthed returns a new interface to a dns3ld service
+// NewUnauthenticated returns a new interface to a dns3ld service
 // at the specified URL. No authentication is made.
 // If desired, specific HTTP client settings
 // can be set, otherwise you can set the httpclient to nil.
 // Note that certificate claims can take minutes, so
 // do not set an httpclient.Timeout too small.
-func NewUnauthed(baseURL *url.URL, httpclient *http.Client) Client {
+func NewUnauthenticated(baseURL *url.URL, httpclient *http.Client) Client {
 	if httpclient == nil {
 		httpclient = http.DefaultClient
 	}
@@ -124,7 +124,9 @@ func (c *clientRawImpl) getUserAgent() string {
 	return GetDefaultUserAgent()
 }
 
-func (c *clientRawImpl) decodeJsonResponse(r io.Reader, v any) error {
+func (c *clientRawImpl) decodeJsonResponse(r io.ReadCloser, v any) error {
+	//nolint:errcheck // don't check closes
+	defer r.Close()
 	d := json.NewDecoder(r)
 	return d.Decode(v)
 }
@@ -142,12 +144,12 @@ func (c *clientImpl) GetServerInfo(ctx context.Context) (*api.ServerInfo, error)
 	return result, nil
 }
 
-func (c *clientRawImpl) GetServerInfo(ctx context.Context) (io.Reader, error) {
+func (c *clientRawImpl) GetServerInfo(ctx context.Context) (io.ReadCloser, error) {
 	url, err := c.fromBase("/info")
 	if err != nil {
 		return nil, err
 	}
-	rq, err := http.NewRequestWithContext(ctx, "GET", url.String(), nil)
+	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
 	if err != nil {
 		return nil, err

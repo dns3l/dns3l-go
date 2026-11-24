@@ -15,5 +15,5 @@ func newTestClient(t *testing.T, handler http.Handler) (Client, *httptest.Server
 	if err != nil {
 		t.Fatal(err)
 	}
-	return NewUnauthed(baseURL, server.Client()), server
+	return NewUnauthenticated(baseURL, server.Client()), server
 }
