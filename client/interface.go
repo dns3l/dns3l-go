@@ -176,7 +176,15 @@ type ClientRaw interface {
 
 // commonClient contains the common ops of the complex and raw clients
 type commonClient interface {
+
+	// ClaimCertificate creates a new certificate by requesting it from the given CA.
 	ClaimCertificate(ctx context.Context, caID string, req *api.CertClaimInfo) error
+
+	// DeleteCertByCA deletes the certificate with the given name from the given CA.
+	// If the CA supports revocation, the certificate is revoked.
 	DeleteCertByCA(ctx context.Context, caID, crtName string) error
+
+	// DeleteCertByCA deletes certificates with the given name from all CAs.
+	// Where the CAs support revocation, the certificates are revoked.
 	DeleteCertAllCAs(ctx context.Context, crtName string) error
 }

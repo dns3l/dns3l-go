@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"net/url"
 
 	"golang.org/x/oauth2"
 )
@@ -11,9 +12,15 @@ import (
 // dns3l stack, the username and password are your LDAP credentials.
 func AuthAPIUserPass(ctx context.Context, instance, username, password string) (
 	*oauth2.Token, error) {
+
+	urlauth, err := url.JoinPath(instance, "/auth/token")
+	if err != nil {
+		return nil, err
+	}
+
 	cfg := &oauth2.Config{
 		Endpoint: oauth2.Endpoint{
-			TokenURL: instance + "/auth/token",
+			TokenURL: urlauth,
 		},
 		ClientID: "dns3l-api-pub",
 		Scopes: []string{
