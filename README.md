@@ -54,6 +54,7 @@ func main() {
 	}
 
 	// read the entire stream
+	defer crtrdr.Close()
 	crtraw, err := io.ReadAll(crtrdr)
 	if err != nil {
 		panic(err)
@@ -148,6 +149,10 @@ func auth(ctx context.Context, instance string) (*oauth2.Token, error) {
 
 The client is extensively documented, so refer to the interface documentation
 for more details.
+
+# Instance test
+
+You can run an [instance test](./test/instance) against your dns3l stack.
 
 ## API structs
 

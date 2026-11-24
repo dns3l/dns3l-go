@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -93,7 +92,6 @@ func (c clientRawImpl) getPaginatedListResource(ctx context.Context, opts *CertQ
 	addSearchOpts(url, opts.Search, opts.Suffix)
 	rq, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
 	c.applyDefaultReqHeaders(rq)
-	fmt.Println(rq)
 
 	if err != nil {
 		return nil, nil, err
